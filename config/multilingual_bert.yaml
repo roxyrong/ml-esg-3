@@ -14,12 +14,14 @@ datamodule:
   test_size: 0.2
 
 model:
-  num_epochs: 3
   hidden_size: 768
   num_labels: 3
   classifier_dropout: 0.2
 
 trainer:
+  num_epochs: 3
   lr: 2e-5
   weight_decay: 0.01
+  warm_up_step: 0.1
+
   monitor: valid_loss, valid_acc

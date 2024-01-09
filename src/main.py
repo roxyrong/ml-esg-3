@@ -2,7 +2,8 @@ import os
 from dotenv import load_dotenv
 import omegaconf
 
-from transformers import AutoModelForSequenceClassification
+import torch
+from transformers import get_linear_schedule_with_warmup
 
 from datamodule import ESGDataset
 from models import MultiLingualBERT
@@ -45,17 +46,27 @@ def main(config):
     model = MultiLingualBERT(**model_params)
 
     # init_trainer
+    
+    optimizer = torch.optim.AdamW(model.parameters(), 
+                                lr=config.trainer.lr, 
+                                weight_decay=config.trainer.weight_decay)
+    
+    num_training_steps = config.trainer.num_epochs * len(train_loader)  
+    scheduler = get_linear_schedule_with_warmup(optimizer, 
+                                                num_warmup_steps=int(num_training_steps * config.trainer.warm_up_step), 
+                                                num_training_steps=num_training_steps)
+    
     trainer_params =  {
         "model": model,
         "train_loader": train_loader,
         "valid_loader": valid_loader,
-        "lr": config.trainer.lr,
-        "weight_decay": config.trainer.weight_decay,
+        "optimizer": optimizer,
+        "scheduler": scheduler,
         "device": config.device
     }
 
     trainer = Trainer(**trainer_params)
-    trainer.fit(num_epochs=config.model.num_epochs)
+    trainer.fit(num_epochs=config.trainer.num_epochs)
 
 
 if __name__ == "__main__":

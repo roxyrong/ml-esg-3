@@ -11,6 +11,8 @@ class Model(torch.nn.Module):
                  num_labels: int = None,
                  device: str = None):
         super().__init__()
+        self._num_labels = num_labels
+        self._model_name = pretrained_model
         self.device = device
         self.pretrained = AutoModelForSequenceClassification.from_pretrained(pretrained_model, token=token).to(device)
         self.freeze_layers()
@@ -29,6 +31,14 @@ class Model(torch.nn.Module):
         out = out.softmax(dim=1)
         
         return out
+    
+    @property
+    def num_labels(self):
+        return self._num_labels
+    
+    @property
+    def model_name(self):
+        return self._model_name
     
     def _fcs(self, hidden_size, num_labels):
         #TODO: add more customization to pass the number of layers and dropout

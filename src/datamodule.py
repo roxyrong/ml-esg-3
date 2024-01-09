@@ -38,7 +38,7 @@ class ESGDataset:
                  seed: int = 314,
                  device: str = "mps") -> None:
         
-        self.filepath = train_path
+        self.train_path = train_path
         self.text_col = text_col
         self.label_col = label_col
         self.stratify_col = stratify_col
@@ -54,8 +54,9 @@ class ESGDataset:
         self.setup()
         
     def setup(self):
-        self.df = pd.read_parquet(self.filepath)
-        self.df = self._filter_languages()
+        print(self.train_path)
+        self.df = pd.read_parquet(self.train_path)
+        self.df = self._filter_language()
         esg_dataset = Dataset.from_pandas(self.df, preserve_index=True)
         self.train_dataset, self.valid_dataset = self._train_test_split(esg_dataset)
         if self.use_cls_weight:
@@ -63,7 +64,7 @@ class ESGDataset:
     
     def _filter_language(self):
         #TODO: filter original languages
-        pass
+        return self.df
     
     def train_dataloader(self):
         return DataLoader(dataset=self.train_dataset,
