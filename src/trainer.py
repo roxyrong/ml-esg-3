@@ -127,10 +127,10 @@ class Trainer:
                 valid_weighted_f1.update(weighted_f1.item(), len(out))
                 
         return {
-            "val_loss": valid_loss.avg,
-            "val_acc": valid_acc.avg,
-            "val_macro_f1": valid_macro_f1.avg,
-            "val_weighted_f1": valid_weighted_f1.avg,
+            "valid_loss": valid_loss.avg,
+            "valid_acc": valid_acc.avg,
+            "valid_macro_f1": valid_macro_f1.avg,
+            "valid_weighted_f1": valid_weighted_f1.avg,
         }
         
     def _compute_loss(self, out, labels):
