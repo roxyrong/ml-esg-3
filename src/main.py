@@ -6,7 +6,7 @@ import torch
 from transformers import get_linear_schedule_with_warmup
 
 from datamodule import ESGDataset
-from models import MultiLingualBERT
+from models import Model
 from trainer import Trainer
 from utils import fix_seed
 
@@ -35,15 +35,20 @@ def main(config):
     valid_loader = esg_dataset.valid_dataloader()
 
     # init model
+    def custom_freeze_layers(model):
+        for param in model.parameters():
+            param.requires_grad = False
+    
     model_params = {
         "pretrained_model":config.pretrained_model,
         "token": config.hf_token,
         "hidden_size": config.model.hidden_size,
         "num_labels": config.model.num_labels,
+        "freeze_layers_fn": custom_freeze_layers,
         "device": config.device
     }
     
-    model = MultiLingualBERT(**model_params)
+    model = Model(**model_params)
 
     # init_trainer
     

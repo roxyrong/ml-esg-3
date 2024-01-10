@@ -65,6 +65,7 @@ class Trainer:
             self._tensorboard_writing(epoch, train_loss, valid_results)
             
         total_time = time.time() - total_start_time
+        
         logging.info(f"total training time: {total_time}")
         
         self.summarywriter.close()
@@ -186,6 +187,8 @@ class Trainer:
             level=logging.INFO,
             format="%(asctime)s > %(message)s",
         )
+        
+        self.model.log_model_info()
     
     def save_checkpoint(self):
         #TODO: add logic to save the best model

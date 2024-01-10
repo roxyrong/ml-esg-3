@@ -26,7 +26,6 @@ def collate_fn(data, text_col, label_col, tokenizer, max_length, device):
 class ESGDataset:
     def __init__(self, 
                  train_path: str = None,
-                #  test_path: str = None,
                  text_col: str = None,
                  label_col: str = None,
                  stratify_col: str = None,

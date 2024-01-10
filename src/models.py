@@ -1,3 +1,4 @@
+import logging
 from abc import abstractmethod
 import torch
 from torchinfo import summary
@@ -9,15 +10,22 @@ class Model(torch.nn.Module):
                  token: str = None,
                  hidden_size: int = None,
                  num_labels: int = None,
-                 allow_finetune: bool = False, #TODO
+                 freeze_layers_fn = None,
+                 additional_layers_fn = None,
                  device: str = None):
         super().__init__()
         self._num_labels = num_labels
         self._model_name = pretrained_model
         self.device = device
         self.pretrained = AutoModelForSequenceClassification.from_pretrained(pretrained_model, token=token).to(device)
-        self.freeze_layers()
-        self.fcs = self._fcs(hidden_size, num_labels)
+        
+        if freeze_layers_fn:
+            freeze_layers_fn(self.pretrained)
+
+        if additional_layers_fn:
+            self.additional_layers = additional_layers_fn(hidden_size, num_labels).to(device)
+        else:
+            self.additional_layers = torch.nn.Sequential(torch.nn.Linear(hidden_size, num_labels)).to(device)
 
     def forward(self, input_ids, attention_mask, token_type_ids):
         out = self.pretrained(input_ids=input_ids,
@@ -26,8 +34,7 @@ class Model(torch.nn.Module):
                               output_hidden_states=True)
         out = out["hidden_states"][-1][:, 0]
         
-        for fc in self.fcs:
-            out = fc(out)
+        out = self.additional_layers(out)
             
         out = out.softmax(dim=1)
         
@@ -41,32 +48,11 @@ class Model(torch.nn.Module):
     def model_name(self):
         return self._model_name
     
-    def _fcs(self, hidden_size, num_labels):
-        #TODO: add more customization to pass the number of layers and dropout
-        return [torch.nn.Linear(hidden_size, num_labels).to(self.device)]
-    
-    @abstractmethod
-    def freeze_layers(self):
-        pass
-
-
-class MultiLingualBERT(Model):
-    def __init__(self, 
-                 pretrained_model: str = None,
-                 token: str = None, 
-                 hidden_size: int = None,
-                 num_labels: int = None,
-                 device: str = "mps"):
-        super().__init__(pretrained_model=pretrained_model, 
-                         token=token, 
-                         hidden_size=hidden_size, 
-                         num_labels=num_labels, 
-                         device=device)
-        
-    def freeze_layers(self):
-        for layer in self.pretrained.bert.encoder.layer[:6]:
-            for param in layer.parameters():
-                param.requires_grad = False
+    def log_model_info(self):
+        msg = summary(self.pretrained)
+        logging.info(msg)
+        msg = f"additional layers: {self.additional_layers}"
+        logging.info(msg)
         
             
         
