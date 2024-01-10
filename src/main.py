@@ -73,7 +73,7 @@ if __name__ == "__main__":
     load_dotenv()
     HF_TOKEN = os.getenv("HF_TOKEN")
     
-    config_path = "./config/multilingual_bert.yaml"
+    config_path = "./config/config.yaml"
     config = omegaconf.OmegaConf.load(config_path)
     config.hf_token = HF_TOKEN
 

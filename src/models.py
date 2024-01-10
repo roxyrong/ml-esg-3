@@ -9,6 +9,7 @@ class Model(torch.nn.Module):
                  token: str = None,
                  hidden_size: int = None,
                  num_labels: int = None,
+                 allow_finetune: bool = False, #TODO
                  device: str = None):
         super().__init__()
         self._num_labels = num_labels

@@ -54,7 +54,6 @@ class ESGDataset:
         self.setup()
         
     def setup(self):
-        print(self.train_path)
         self.df = pd.read_parquet(self.train_path)
         self.df = self._filter_language()
         esg_dataset = Dataset.from_pandas(self.df, preserve_index=True)
