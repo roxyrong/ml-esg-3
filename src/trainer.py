@@ -90,7 +90,7 @@ class Trainer:
             train_loss.update(loss.item(), len(out))
             
             if i % self.eval_step == 0:
-                logging.info(f"step {i}/{len(self.train_loader)}: train_loss: {train_loss.avg}")
+                logging.info(f"step {i}/{len(self.train_loader)}: train_loss: {train_loss.avg:.4f}")
             
             self.empty_cache()
         
@@ -142,12 +142,12 @@ class Trainer:
         valid_macro_f1 = valid_results["valid_macro_f1"]
         valid_weighted_f1 = valid_results["valid_weighted_f1"]
         
-        msg = f"Epoch {epoch}/{num_epochs} | Train loss: {train_loss}" 
-        msg = f"{msg} | Validation loss: {valid_loss}"
+        msg = f"Epoch {epoch}/{num_epochs} | Train loss: {train_loss:.4f}" 
+        msg = f"{msg} | Validation loss: {valid_loss:.4f}"
         msg = f"{msg} | Time/epoch: {round(epoch_time, 5)} seconds"
         logging.info(msg)
             
-        msg = f"""global step: {self.global_step}, 
+        msg = f"""Metrics:
                 validation loss: {valid_loss:.4f}, 
                 validation_accuracy: {valid_acc:.4f}, 
                 validatoin_mcaro_f1: {valid_macro_f1:.4f}, 
@@ -189,6 +189,10 @@ class Trainer:
         )
         
         self.model.log_model_info()
+        
+        msg = f"""optimizer: {self.optimizer}
+                  scheduler: {self.scheduler}
+                  """
     
     def save_checkpoint(self):
         #TODO: add logic to save the best model
