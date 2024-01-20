@@ -69,7 +69,7 @@ class Trainer:
         logging.info(f"total training time: {total_time}")
         
         self.summarywriter.close()
-        self.save_checkpoint()
+        self.save_model_params()
     
     def _train_epoch(self):
         self.model.train()
@@ -133,7 +133,7 @@ class Trainer:
             "valid_macro_f1": valid_macro_f1.avg,
             "valid_weighted_f1": valid_weighted_f1.avg,
         }
-        
+
     def _compute_loss(self, out, labels):
         return self.criterion(out, labels)
 
@@ -142,12 +142,12 @@ class Trainer:
         valid_acc = valid_results["valid_acc"]
         valid_macro_f1 = valid_results["valid_macro_f1"]
         valid_weighted_f1 = valid_results["valid_weighted_f1"]
-        
-        msg = f"Epoch {epoch}/{num_epochs} | Train loss: {train_loss}" 
+
+        msg = f"Epoch {epoch}/{num_epochs} | Train loss: {train_loss}"
         msg = f"{msg} | Validation loss: {valid_loss}"
         msg = f"{msg} | Time/epoch: {round(epoch_time, 5)} seconds"
         logging.info(msg)
-            
+
         msg = f"""global step: {self.global_step}, 
                 validation loss: {valid_loss:.4f}, 
                 validation_accuracy: {valid_acc:.4f}, 
@@ -155,7 +155,7 @@ class Trainer:
                 validation_weighted_f1: {valid_weighted_f1:.4f}
                 """
         logging.info(msg)
-            
+
     def _tensorboard_writing(self, epoch, train_loss, valid_results):
         valid_loss = valid_results["valid_loss"]
         valid_acc = valid_results["valid_acc"]
@@ -167,7 +167,7 @@ class Trainer:
         self.summarywriter.add_scalars("acc/epoch", {"val": valid_acc}, epoch)
         self.summarywriter.add_scalars("macro_f1/epoch", {"val": valid_macro_f1}, epoch)
         self.summarywriter.add_scalars("weighted_f1/epoch", {"val": valid_weighted_f1}, epoch)
-        
+
     def save_model_setup(self):
         self.version = 0
         while True:
@@ -182,26 +182,26 @@ class Trainer:
             else:
                 self.version += 1
         self.summarywriter = SummaryWriter(self.save_path)
-        
+
         logging.basicConfig(
             filename=os.path.join(self.save_path, "experiment.log"),
             level=logging.INFO,
             format="%(asctime)s > %(message)s",
         )
-        
+
         self.model.log_model_info()
-    
+
     def save_checkpoint(self):
         #TODO: add logic to save the best model
         self.model.module.save_pretrained()
-    
+
     def empty_cache(self):
         if self.device == "mps":
             torch.mps.empty_cache()
         elif self.device == "cuda":
             torch.cuda.empty_cache()
         gc.collect()
-    
+
     def save_model_params(self):
         save_path=os.path.join(self.save_path, "trained_model.pth")
         torch.save(self.model.state_dict(), save_path)
