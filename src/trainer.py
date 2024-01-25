@@ -72,7 +72,7 @@ class Trainer:
             if valid_results["valid_acc"] >= accuracy_init:
                 accuracy_init = valid_results["valid_acc"]
                 self.save_checkpoint()
-                logging.info(f'Epoch {epoch + 1}: New best model saved with val accuracy {accuracy_init}')
+                logging.info(f'New best model saved with val accuracy {accuracy_init:.4f}')
 
             self._tensorboard_writing(epoch, train_results, valid_results)
             
@@ -104,7 +104,7 @@ class Trainer:
             train_acc.update(acc.item(), len(out))
 
             if i % self.eval_step == 0:
-                logging.info(f"step {i}/{len(self.train_loader)}: train_loss: {train_loss.avg}: | train_acc: {train_acc.avg}")
+                logging.info(f"step {i}/{len(self.train_loader)}: train_loss: {train_loss.avg:.4f}: | train_acc: {train_acc.avg:.4f}")
             self.empty_cache()
         
             self.optimizer.step()
@@ -163,7 +163,7 @@ class Trainer:
         valid_macro_f1 = valid_results["valid_macro_f1"]
         valid_weighted_f1 = valid_results["valid_weighted_f1"]
 
-        msg = f"Epoch {epoch}/{num_epochs} | Time/epoch: {round(epoch_time, 5)} seconds"
+        msg = f"Epoch {epoch}/{num_epochs} | Time/epoch: {round(epoch_time, 0)} seconds"
         logging.info(msg)
 
         msg = f"""global step: {self.global_step}, 
