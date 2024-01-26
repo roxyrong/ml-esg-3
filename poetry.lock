@@ -1339,7 +1339,17 @@ brotli = ["brotli (>=1.0.9)", "brotlicffi (>=0.8.0)"]
 socks = ["pysocks (>=1.5.6,!=1.5.7,<2.0)"]
 zstd = ["zstandard (>=0.18.0)"]
 
+[[package]]
+name = "zhconv"
+version = "1.4.3"
+description = "A simple implementation of Simplified-Traditional Chinese conversion."
+optional = false
+python-versions = "*"
+files = [
+    {file = "zhconv-1.4.3.tar.gz", hash = "sha256:ad42d9057ca0605f8e41d62b67ca797f879f58193ee6840562c51459b2698c45"},
+]
+
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "49f721c6e5588e61503a260f96dd9c06a0618f493e7908dd7edeb0a2d66fb93b"
+content-hash = "262be7c527d599d41da0bb19cf52ffc46b73dbb28bef89d053f8d2f2c0302e70"

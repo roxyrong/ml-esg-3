@@ -13,6 +13,7 @@ nltk = "^3.8.1"
 omegaconf = "^2.3.0"
 transformers = "^4.37.1"
 deepl = "^1.16.1"
+zhconv = "^1.4.3"
 
 
 [build-system]
