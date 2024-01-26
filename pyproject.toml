@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "ml-esg-3"
+version = "0.1.0"
+description = "ESG Impact Duration Classification"
+authors = ["roxyrong <rongxinyun2010@gmail.com> weijie yang <raphaelyang1998@berkeley.edu>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+torch = "^2.1.2"
+torchmetrics = "^1.3.0.post0"
+nltk = "^3.8.1"
+omegaconf = "^2.3.0"
+transformers = "^4.37.1"
+deepl = "^1.16.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
