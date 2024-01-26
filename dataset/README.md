@@ -5,23 +5,20 @@ Original Files:
 - ML-ESG-3_Trainset_Japanese.json
 - ML-ESG-3_Trainset_Korean.json
 
-Derived Dataset Pipeline: 
-1. aggregate all JSON files
+1. aggregate all JSON files[Notebook - ml-esg-3-EDA]
 - train_df.parquet
 
-2. use DeepL translate non-English news to English and aggregate
-- train_df_Chinese_translated.parquet
-- train_df_English_translated.parquet
-- train_df_French_translated.parquet
-- train_df_Korean_translated.parquet
-- train_df_all_english.parquet (aggregated for all languages)
+2. use DeepL translate non-English news to English and aggregate [Notebook - DeepL Translation]
+- Translation_Chinese_Dataset.parquet
+- Translation_English_Dataset.parquet
+- Translation_French_Dataset.parquet
+- Translation_Korean_Dataset.parquet
+- Translation_Dataset.parquet (aggregated for all languages)
 
-3. segment translated Korean and Chinese news into multiple paragraphs
-- train_df_Korean_translated_segmented
-- train_df_Chinese_translated_segmented
+3. segment translated Korean and Chinese news into multiple paragraphs [Notebook - Data Preprocessing]
 
-4. augmented training data with GPT4
-- train_df_English_augmented.parquet
+4. Split training set and validation set [Notebook - Data Preprocessing]
+- training_set.parquet
+- validation_set.parquet
 
-5. aggregate segmented data and augmented data and final data processing
-- training_dataset.parquet
+5. Data augmentation using OpenAI api
