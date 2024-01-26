@@ -5,6 +5,7 @@ device: mps
 
 datamodule:
   train_path: dataset/training_dataset.parquet
+  valid_path: dataset/validation_dataset.parquet
   augment: False
   text_col: feature
   label_col: label

@@ -14,6 +14,7 @@ def main(config):
     # init dataset
     dm_params = {
         "train_path": config.datamodule.train_path,
+        "valid_path": config.datamodule.valid_path,
         "text_col": config.datamodule.text_col,
         "label_col": config.datamodule.label_col,
         "stratify_col": config.datamodule.stratify_col,

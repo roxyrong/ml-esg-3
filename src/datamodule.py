@@ -27,6 +27,7 @@ def collate_fn(data, text_col, label_col, tokenizer, max_length, device):
 class ESGDataset:
     def __init__(self, 
                  train_path: str = None,
+                 valid_path: str = None,
                  text_col: str = None,
                  label_col: str = None,
                  stratify_col: str = None,
@@ -40,6 +41,7 @@ class ESGDataset:
                  augment: bool = False) -> None:
         
         self.train_path = train_path
+        self.valid_path = valid_path
         self.text_col = text_col
         self.label_col = label_col
         self.stratify_col = stratify_col
@@ -58,37 +60,48 @@ class ESGDataset:
 
     def setup(self):
         # import the parquet
-        self.df = pd.read_parquet(self.train_path).loc[:100]
+        self.train_df = pd.read_parquet(self.train_path).loc[:100]
+        self.valid_df = pd.read_parquet(self.valid_path).loc[:100]
+        
+        self.train_dataset = Dataset.from_pandas(self.train_df, preserve_index=True)
+        self.valid_dataset = Dataset.from_pandas(self.valid_df, preserve_index=True)
+        
+        self.train_dataset = self.train_dataset.class_encode_column(self.label_col)
+        self.valid_dataset = self.valid_dataset.class_encode_column(self.label_col)
+        
+        if self.use_cls_weight:
+            self.train_dataset = self.resample_train_dataset()
 
+        #TODO: figure out data augmentation and delete
         # === using augmentation
-        if self.augment:
-            print("Augmented Dataset detected...")
-            # segment the dataset into two parts
-            self.augmented_dataset = self.df.loc[self.df["source"] == "gpt"]
-            self.df = self.df.loc[self.df["source"] != "gpt"]
-            # convert two datasets to Datasets
-            esg_dataset = Dataset.from_pandas(self.df, preserve_index=True)
-            self.augmented_dataset = Dataset.from_pandas(self.augmented_dataset, preserve_index=True)
-            # train test split
-            self.train_dataset, self.valid_dataset = self._train_test_split(esg_dataset)
-            if self.use_cls_weight:
-                # concatenate dataset
-                self.augmented_dataset = self.augmented_dataset.class_encode_column(self.label_col)
-                self.train_dataset = concatenate_datasets([self.train_dataset, self.augmented_dataset])
-                self.train_dataset = self.resample_train_dataset()
-            else:
-                # concatenate dataset
-                self.augmented_dataset = self.augmented_dataset.class_encode_column(self.label_col)
-                self.train_dataset = concatenate_datasets([self.train_dataset, self.augmented_dataset])
-        else:
-            # filter out augmented sentences
-            self.df = self.df.loc[self.df["source"] != "gpt"]
-            # convert to Datasets
-            esg_dataset = Dataset.from_pandas(self.df, preserve_index=True)
-            # train test split
-            self.train_dataset, self.valid_dataset = self._train_test_split(esg_dataset)
-            if self.use_cls_weight:
-                self.train_dataset = self.resample_train_dataset()
+        # if self.augment:
+        #     print("Augmented Dataset detected...")
+        #     # segment the dataset into two parts
+        #     self.augmented_dataset = self.df.loc[self.df["source"] == "gpt"]
+        #     self.df = self.df.loc[self.df["source"] != "gpt"]
+        #     # convert two datasets to Datasets
+        #     esg_dataset = Dataset.from_pandas(self.df, preserve_index=True)
+        #     self.augmented_dataset = Dataset.from_pandas(self.augmented_dataset, preserve_index=True)
+        #     # train test split
+        #     self.train_dataset, self.valid_dataset = self._train_test_split(esg_dataset)
+        #     if self.use_cls_weight:
+        #         # concatenate dataset
+        #         self.augmented_dataset = self.augmented_dataset.class_encode_column(self.label_col)
+        #         self.train_dataset = concatenate_datasets([self.train_dataset, self.augmented_dataset])
+        #         self.train_dataset = self.resample_train_dataset()
+        #     else:
+        #         # concatenate dataset
+        #         self.augmented_dataset = self.augmented_dataset.class_encode_column(self.label_col)
+        #         self.train_dataset = concatenate_datasets([self.train_dataset, self.augmented_dataset])
+        # else:
+        #     # filter out augmented sentences
+        #     self.df = self.df.loc[self.df["source"] != "gpt"]
+        #     # convert to Datasets
+        #     esg_dataset = Dataset.from_pandas(self.df, preserve_index=True)
+        #     # train test split
+        #     self.train_dataset, self.valid_dataset = self._train_test_split(esg_dataset)
+        #     if self.use_cls_weight:
+        #         self.train_dataset = self.resample_train_dataset()
 
 
     

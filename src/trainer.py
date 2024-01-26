@@ -35,7 +35,6 @@ class Trainer:
         self.save_model_setup()
         
         self.global_step = 0
-        self.eval_step = 50
         
     def _create_metrics(self):
         self.accuracy_metric = Accuracy(task="multiclass", 
@@ -57,12 +56,16 @@ class Trainer:
         
         for epoch in range(num_epochs):
             logging.info("+" * 40)
-            logging.info(f"Epoch: {epoch + 1}")
+            logging.info(f"Starting Epoch: {epoch + 1}")
 
             epoch_start_time = time.time()
             
             train_results = self._train_epoch()
+            
+            logging.info(f"start validating...")
             valid_results = self._validate()
+            
+            logging.info(f"finished validating...")
             
             epoch_time = time.time() - epoch_start_time
             
@@ -103,8 +106,6 @@ class Trainer:
             acc = self.accuracy_metric(out, labels)
             train_acc.update(acc.item(), len(out))
 
-            if i % self.eval_step == 0:
-                logging.info(f"step {i}/{len(self.train_loader)}: train_loss: {train_loss.avg:.4f}: | train_acc: {train_acc.avg:.4f}")
             self.empty_cache()
         
             self.optimizer.step()

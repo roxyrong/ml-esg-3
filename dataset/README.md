@@ -18,7 +18,7 @@ Original Files:
 3. segment translated Korean and Chinese news into multiple paragraphs [Notebook - Data Preprocessing]
 
 4. Split training set and validation set [Notebook - Data Preprocessing]
-- training_set.parquet
-- validation_set.parquet
+- training_dataset.parquet
+- validation_dataset.parquet
 
 5. Data augmentation using OpenAI api
