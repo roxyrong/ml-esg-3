@@ -33,6 +33,7 @@ class TrainerConfig(BaseModel):
     lr: float
     weight_decay: float
     warm_up_step: float
+    early_stop: bool
 
 
 class Config(BaseModel):

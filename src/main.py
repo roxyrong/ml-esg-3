@@ -76,6 +76,8 @@ if __name__ == "__main__":
     # Load configuration file
     HF_TOKEN = os.environ["HF_TOKEN"]
     config_path = "config/config.yaml"
+    
+    # Train a single model
     base_config = Config.from_yaml(config_path, HF_TOKEN)
     train_model(base_config)
 
