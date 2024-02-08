@@ -1,5 +1,6 @@
 import logging
 
+import numpy as np
 import torch
 import torch.nn as nn
 from torchinfo import summary
@@ -8,6 +9,8 @@ from transformers import (
     T5Config,
     T5ForConditionalGeneration,
 )
+
+from utils import check_model_type
 
 
 class LayerBuilder:
@@ -75,10 +78,25 @@ class Model(torch.nn.Module):
         self.additional_layers = layer_builder.build().to(device)
 
     def freeze_params(self, unfreeze_layers):
-        for name, param in self.pretrained.named_parameters():
+        # freeze all params first
+        for param in self.pretrained.parameters():
             param.requires_grad = False
+
+        if check_model_type(self.pretrained, "bert"):
             for layer_num in unfreeze_layers:
-                if str(layer_num) in name:
+                for param in self.pretrained.base_model.encoder.layer[
+                    layer_num
+                ].parameters():
+                    param.requires_grad = True
+        elif check_model_type(self.pretrained, "t5"):
+            for layer_num in unfreeze_layers:
+                for param in self.pretrained.base_model.encoder.block[
+                    layer_num
+                ].parameters():
+                    param.requires_grad = True
+                for param in self.pretrained.base_model.decoder.block[
+                    layer_num
+                ].parameters():
                     param.requires_grad = True
 
     def forward(self, encoded):
@@ -106,12 +124,11 @@ class Model(torch.nn.Module):
             out = self.pretrained(
                 input_ids=input_ids,
                 attention_mask=attention_mask,
+                decoder_input_ids=encoded["decoder_input_ids"],
                 output_hidden_states=True,
             )
             out = out["encoder_last_hidden_state"]
-            
-            #TODO: make t5 decoder work
-            labels = encoded["labels"]
+            out = torch.mean(out, dim=1)  # average pooling
         else:
             raise KeyError("Not a known model!")
         return out
@@ -124,8 +141,8 @@ class Model(torch.nn.Module):
     def model_name(self):
         return self._model_name
 
-    def log_model_info(self):
+    def log_model_info(self, logger):
         msg = summary(self.pretrained)
-        logging.info(msg)
+        logger.info(msg)
         msg = f"additional layers: {self.additional_layers}"
-        logging.info(msg)
+        logger.info(msg)

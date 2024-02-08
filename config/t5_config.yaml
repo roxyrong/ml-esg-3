@@ -1,6 +1,6 @@
 seed: 3407
-pretrained_model: microsoft/deberta-v3-small
-tokenizer_name: microsoft/deberta-v3-small
+pretrained_model: t5-small
+tokenizer_name: t5-small
 device: mps
 
 datamodule:
@@ -16,11 +16,11 @@ datamodule:
   test_size: 0.2
 
 model:
-  hidden_size: 768
-  layer_sizes: [256, 128, 64, 32]
-  unfreeze_layers: []
+  hidden_size: 512
+  layer_sizes: []
+  unfreeze_layers: [-1]
   num_labels: 3
-  dropout: 0.4
+  dropout: 0.15
   activation: LeakyReLU
 
 trainer:

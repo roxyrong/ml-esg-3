@@ -1,5 +1,5 @@
-import os
 import itertools
+import os
 
 import torch
 from transformers import get_linear_schedule_with_warmup
@@ -8,7 +8,7 @@ from config import Config
 from datamodule import ESGDataset
 from models import Model
 from trainer import Trainer
-from utils import fix_seed, empty_cache
+from utils import empty_cache, fix_seed
 
 
 def train_model(config: Config):
@@ -43,6 +43,7 @@ def train_model(config: Config):
         "model": model,
         "train_loader": train_loader,
         "valid_loader": valid_loader,
+        "config": config,
         "optimizer": optimizer,
         "scheduler": scheduler,
         "device": config.device,
@@ -53,41 +54,52 @@ def train_model(config: Config):
 
 
 def run_grid_search(param_grid):
-    param_grid_keys = param_grid.keys()
-    print(param_grid_keys)
     param_combinations = list(
         itertools.product(*(param_grid[param] for param in param_grid))
     )
 
     for combination in param_combinations:
-        new_params = dict(zip(param_grid_keys, combination))
+        new_params = dict(zip(param_grid.keys(), combination))
         print(f"Training with config: {new_params}")
-        current_config = base_config.copy(deep=True)
-        current_config.datamodule.train_path = new_params["train_path"]
-        current_config.pretrained_model = new_params["pretrained_model"]
-        current_config.tokenizer_name = new_params["pretrained_model"]
-        current_config.trainer.lr = new_params["lr"]
-        current_config.model.unfreeze_layers = new_params["unfreeze_layers"]
+        current_config = update_config(base_config, new_params)
         train_model(current_config)
+
+
+def update_config(base_config, new_params):
+    # Make a deep copy of the base config to avoid mutating the original
+    current_config = base_config.model_copy(deep=True)
+
+    # Update the configuration with new parameters
+    for key, value in new_params.items():
+        path = key.split(".")
+        current_dict = current_config
+        for part in path[:-1]:
+            current_dict = getattr(current_dict, part)
+        setattr(current_dict, path[-1], value)
+
+    return current_config
 
 
 # ===== Model Running Access =====
 if __name__ == "__main__":
     # Load configuration file
-    HF_TOKEN = os.environ["HF_TOKEN"]
-    config_path = "config/config.yaml"
+
+    # config_path = "config/bert_config.yaml"
+    config_path = "config/t5_config.yaml"
     
     # Train a single model
+    HF_TOKEN = os.environ["HF_TOKEN"]  
     base_config = Config.from_yaml(config_path, HF_TOKEN)
-    train_model(base_config)
+    # train_model(base_config)
 
-    # Grid Search
-    # param_grid = {
-    #     'train_path': ['dataset/training_dataset.parquet', 'dataset/training_with_augmentation.parquet'],
-    #     'pretrained_model': ['nbroad/ESG-BERT', 'microsoft/deberta-v3-base'],
-    #     'lr': [1e-3, 1e-4, 1e-5],
-    #     'batch_size': [16, 32],
-    #     'unfreeze_layers': [[], [11], [9, 10, 11]]
-    # }
+    param_grid = {
+        "datamodule.train_path": [
+            "dataset/training_dataset.parquet",
+            "dataset/training_with_augmentation.parquet",
+        ],
+        "datamodule.batch_size": [16, 32],
+        "model.unfreeze_layers": [[], [-1], [-1, -2, -3]],
+        "trainer.lr": [1e-3, 1e-4, 1e-5],
+    }
 
-    # run_grid_search(param_grid)
+    run_grid_search(param_grid)

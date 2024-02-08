@@ -7,11 +7,13 @@ from torch.utils.data import DataLoader
 from transformers import AutoTokenizer, T5Tokenizer
 
 
-def collate_fn(data, feature_col, label_col, language_col, tokenizer, max_length, device):
+def collate_fn(
+    data, feature_col, label_col, language_col, tokenizer, max_length, device
+):
     features = [i[feature_col] for i in data]
     labels = torch.tensor([i[label_col] for i in data]).to(device)
     languages = [i[language_col] for i in data]
-    encoded = tokenizer.batch_encode_plus(
+    encoded_features = tokenizer.batch_encode_plus(
         features,
         truncation=True,
         padding="max_length",
@@ -19,8 +21,16 @@ def collate_fn(data, feature_col, label_col, language_col, tokenizer, max_length
         return_tensors="pt",
         return_length=True,
     )
-    encoded = encoded.to(device)
-    return encoded, features, labels, languages
+    encoded_labels = tokenizer.batch_encode_plus(
+        [str(i[label_col]) for i in data],
+        truncation=True,
+        padding="max_length",
+        max_length=2,
+        return_tensors="pt",
+    ).input_ids
+    encoded_features = encoded_features.to(device)
+    encoded_labels = encoded_labels.to(device)
+    return features, encoded_features, labels, encoded_labels, languages
 
 
 class ESGDataset:
@@ -33,7 +43,7 @@ class ESGDataset:
         language_col: str = None,
         stratify_col: str = None,
         tokenizer_name: str = None,
-        max_length: int = 512,
+        max_length: int = 400,
         use_cls_weight: bool = True,
         batch_size: int = 32,
         test_size: float = 0.2,

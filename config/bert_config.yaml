@@ -1,0 +1,31 @@
+seed: 3407
+pretrained_model: microsoft/deberta-v3-base
+tokenizer_name: microsoft/deberta-v3-base
+device: mps
+
+datamodule:
+  train_path: dataset/training_with_augmentation.parquet
+  valid_path: dataset/validation_dataset.parquet
+  feature_col: feature
+  language_col: language
+  label_col: label
+  stratify_col: label
+  max_length: 400
+  use_cls_weight: False
+  batch_size: 8
+  test_size: 0.2
+
+model:
+  hidden_size: 768
+  layer_sizes: [256, 128, 64, 32]
+  unfreeze_layers: [-1]
+  num_labels: 3
+  dropout: 0.15
+  activation: LeakyReLU
+
+trainer:
+  num_epochs: 5
+  lr: 8e-05
+  weight_decay: 0.01
+  warm_up_step: 0.1
+  early_stop: True

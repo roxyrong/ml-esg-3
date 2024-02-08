@@ -25,6 +25,10 @@ def empty_cache(device):
     gc.collect()
 
 
+def check_model_type(model, model_type):
+    return model_type in str(type(model))
+
+
 class AverageMeter:
     def __init__(self):
         self.reset()
@@ -40,13 +44,14 @@ class AverageMeter:
         self.sum += val * n
         self.count += n
         self.avg = self.sum / self.count
-        
-        
+
+
 class EarlyStopper:
     """
     Early stopping to stop the training when the loss does not improve after
     certain epochs.
     """
+
     def __init__(self, patience=3, min_delta=0):
         """
         :param patience: how many epochs to wait before stopping when loss is
@@ -59,7 +64,7 @@ class EarlyStopper:
         self.counter = 0
         self.best_loss = None
         self.should_stop = False
-        
+
     def __call__(self, val_loss):
         if self.best_loss == None:
             self.best_loss = val_loss
@@ -70,6 +75,8 @@ class EarlyStopper:
             self.counter += 1
             logging.info(f"Early stopping counter {self.counter}/{self.patience}.")
             if self.counter >= self.patience:
-                logging.info(f"Validation loss hasn't improved for {self.patience} time. Training stopped.")
+                logging.info(
+                    f"Validation loss hasn't improved for {self.patience} time. Training stopped."
+                )
                 self.should_stop = True
         return self.should_stop
