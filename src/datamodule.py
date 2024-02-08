@@ -75,8 +75,8 @@ class ESGDataset:
 
     def setup(self):
         # import the parquet
-        self.train_df = pd.read_parquet(self.train_path).iloc[:100]
-        self.valid_df = pd.read_parquet(self.valid_path).iloc[:50]
+        self.train_df = pd.read_parquet(self.train_path).iloc
+        self.valid_df = pd.read_parquet(self.valid_path).iloc
 
         self.train_dataset = Dataset.from_pandas(self.train_df, preserve_index=True)
         self.valid_dataset = Dataset.from_pandas(self.valid_df, preserve_index=True)
