@@ -143,7 +143,7 @@ class Trainer:
 
             self.global_step += 1
 
-            current_lr = self.scheduler.get_last_lr()
+            current_lr = self.scheduler.get_last_lr()[0]
             self.logger.info(f"Current learning rate: {current_lr:.4f}")
 
         return {"train_loss": train_loss.avg, "train_acc": train_acc.avg}

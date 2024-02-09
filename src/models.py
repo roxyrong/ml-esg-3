@@ -99,32 +99,23 @@ class Model(torch.nn.Module):
                 ].parameters():
                     param.requires_grad = True
 
-    def forward(self, encoded):
+    def forward(self, encoded, *args, **kwargs):
         out = self.call_pretrained(encoded)
         out = self.additional_layers(out)
         out = out.softmax(dim=1)
-
         return out
 
     def call_pretrained(self, encoded):
         if "bert" in str(type(self.pretrained)):
-            input_ids = encoded["input_ids"]
-            attention_mask = encoded["attention_mask"]
-            token_type_ids = encoded["token_type_ids"]
+            encoded.pop("decoder_input_ids")
             out = self.pretrained(
-                input_ids=input_ids,
-                attention_mask=attention_mask,
-                token_type_ids=token_type_ids,
+                **encoded,
                 output_hidden_states=True,
             )
             out = out["hidden_states"][-1][:, 0]
         elif "t5" in str(type(self.pretrained)):
-            input_ids = encoded["input_ids"]
-            attention_mask = encoded["attention_mask"]
             out = self.pretrained(
-                input_ids=input_ids,
-                attention_mask=attention_mask,
-                decoder_input_ids=encoded["decoder_input_ids"],
+                **encoded,
                 output_hidden_states=True,
             )
             out = out["encoder_last_hidden_state"]

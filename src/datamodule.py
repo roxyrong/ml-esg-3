@@ -18,8 +18,7 @@ def collate_fn(
         truncation=True,
         padding="max_length",
         max_length=max_length,
-        return_tensors="pt",
-        return_length=True,
+        return_tensors="pt"
     )
     encoded_labels = tokenizer.batch_encode_plus(
         [str(i[label_col]) for i in data],
@@ -75,8 +74,8 @@ class ESGDataset:
 
     def setup(self):
         # import the parquet
-        self.train_df = pd.read_parquet(self.train_path).iloc
-        self.valid_df = pd.read_parquet(self.valid_path).iloc
+        self.train_df = pd.read_parquet(self.train_path)
+        self.valid_df = pd.read_parquet(self.valid_path)
 
         self.train_dataset = Dataset.from_pandas(self.train_df, preserve_index=True)
         self.valid_dataset = Dataset.from_pandas(self.valid_df, preserve_index=True)
