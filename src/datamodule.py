@@ -18,7 +18,7 @@ def collate_fn(
         truncation=True,
         padding="max_length",
         max_length=max_length,
-        return_tensors="pt"
+        return_tensors="pt",
     )
     encoded_labels = tokenizer.batch_encode_plus(
         [str(i[label_col]) for i in data],

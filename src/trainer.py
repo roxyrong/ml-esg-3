@@ -26,7 +26,7 @@ class Trainer:
         config: Config,
         optimizer=None,
         scheduler=None,
-        early_stop: bool = False,
+        early_stop: bool = True,
         device: str = "cuda",
     ) -> None:
 
@@ -84,7 +84,7 @@ class Trainer:
             )
 
             # save the best performance model based on validation accuracy
-            if valid_results["valid_acc"] >= accuracy_init:
+            if valid_results["valid_acc"] > accuracy_init:
                 accuracy_init = valid_results["valid_acc"]
                 self.save_checkpoint()
                 self.logger.info(
@@ -143,8 +143,8 @@ class Trainer:
 
             self.global_step += 1
 
-            current_lr = self.scheduler.get_last_lr()[0]
-            self.logger.info(f"Current learning rate: {current_lr:.4f}")
+            # current_lr = self.scheduler.get_last_lr()[0]
+            # self.logger.info(f"Current learning rate: {current_lr:.4f}")
 
         return {"train_loss": train_loss.avg, "train_acc": train_acc.avg}
 

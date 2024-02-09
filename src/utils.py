@@ -52,7 +52,7 @@ class EarlyStopper:
     certain epochs.
     """
 
-    def __init__(self, patience=3, min_delta=0):
+    def __init__(self, patience=2, min_delta=0):
         """
         :param patience: how many epochs to wait before stopping when loss is
                not improving
@@ -74,7 +74,7 @@ class EarlyStopper:
         else:
             self.counter += 1
             logging.info(f"Early stopping counter {self.counter}/{self.patience}.")
-            if self.counter >= self.patience:
+            if self.counter > self.patience:
                 logging.info(
                     f"Validation loss hasn't improved for {self.patience} time. Training stopped."
                 )

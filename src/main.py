@@ -46,6 +46,7 @@ def train_model(config: Config):
         "config": config,
         "optimizer": optimizer,
         "scheduler": scheduler,
+        "early_stop": config.trainer.early_stop,
         "device": config.device,
     }
 
@@ -84,22 +85,22 @@ def update_config(base_config, new_params):
 if __name__ == "__main__":
     # Load configuration file
 
-    # config_path = "config/bert_config.yaml"
-    config_path = "config/t5_config.yaml"
+    config_path = "config/bert_config.yaml"
+    # config_path = "config/t5_config.yaml"
     
     # Train a single model
     HF_TOKEN = os.environ["HF_TOKEN"]  
     base_config = Config.from_yaml(config_path, HF_TOKEN)
-    # train_model(base_config)
+    train_model(base_config)
 
-    param_grid = {
-        "datamodule.train_path": [
-            "dataset/training_dataset.parquet",
-            "dataset/training_with_augmentation.parquet",
-        ],
-        "datamodule.batch_size": [16, 32],
-        "model.unfreeze_layers": [[], [-1], [-1, -2, -3]],
-        "trainer.lr": [1e-3, 1e-4, 1e-5],
-    }
+    # param_grid = {
+    #     "datamodule.train_path": [
+    #         "dataset/training_dataset.parquet",
+    #         "dataset/training_with_augmentation.parquet",
+    #     ],
+    #     "datamodule.batch_size": [16, 32],
+    #     "model.unfreeze_layers": [[], [-1], [-1, -2, -3]],
+    #     "trainer.lr": [1e-3, 1e-4, 1e-5],
+    # }
 
-    run_grid_search(param_grid)
+    # run_grid_search(param_grid)
