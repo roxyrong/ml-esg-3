@@ -7,6 +7,7 @@ import pandas as pd
 import torch
 from pydantic.json import pydantic_encoder
 from torch.nn import CrossEntropyLoss
+from torch.nn.utils import clip_grad_norm_
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from torchmetrics import Accuracy
@@ -136,6 +137,8 @@ class Trainer:
             acc = self.accuracy_metric(out, labels)
             train_acc.update(acc.item(), len(out))
             empty_cache(self.device)
+            
+            clip_grad_norm_(self.model.parameters(), 1)
 
             self.optimizer.step()
             if self.scheduler:
@@ -296,4 +299,4 @@ class Trainer:
 
     def save_checkpoint(self):
         save_path = os.path.join(self.save_path, "trained_model.pth")
-        torch.save(self.model.state_dict(), save_path)
+        torch.save(self.model, save_path)
